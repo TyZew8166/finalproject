@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:ignore="ExtraText">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/map"
@@ -22,7 +23,7 @@
         android:layout_alignParentEnd="true"
         android:layout_marginTop="-3dp"
         android:layout_marginEnd="0dp"
-        android:text="@string/button" />
+        android:text="轉換頁面" />
 
     <ImageView
         android:id="@+id/imageView2"
