@@ -12,6 +12,7 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/imageView2"
         tools:context=".MapsActivity"
         tools:layout="@layout/support_simple_spinner_dropdown_item" />
 

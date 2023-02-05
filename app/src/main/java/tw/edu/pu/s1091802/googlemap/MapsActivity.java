@@ -52,5 +52,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         LatLng taichung = new LatLng(24.163434771541002 , 120.67463672003178);  //設定台中座標
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(taichung , 14));  //鏡頭移到指定地點 , 縮放等級14
+
+        mMap.getUiSettings().setCompassEnabled(true);
+        mMap.getUiSettings().setZoomControlsEnabled(true);
     }
 }
