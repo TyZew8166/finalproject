@@ -12,7 +12,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import tw.edu.pu.s1091802.googlemap.databinding.ActivityMapsBinding;
 
@@ -40,7 +39,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
-                intent.setClass(MapsActivity.this , page2.class);  //從主畫面跳到搜尋畫面
+                intent.setClass(MapsActivity.this , search.class);  //從主畫面跳到搜尋畫面
                 startActivity(intent);
             }
         });
