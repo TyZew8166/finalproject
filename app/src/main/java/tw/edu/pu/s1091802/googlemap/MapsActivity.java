@@ -3,33 +3,56 @@ package tw.edu.pu.s1091802.googlemap;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import tw.edu.pu.s1091802.googlemap.databinding.ActivityMapsBinding;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback , LocationListener
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback , LocationListener , GoogleMap.OnMarkerClickListener , GoogleApiClient.ConnectionCallbacks , GoogleApiClient.OnConnectionFailedListener
 {
 
+    public static final int ROUND = 10;
     private GoogleMap mMap;
-    private ActivityMapsBinding binding;
-    private Button button;
+    public GoogleApiClient googleApiClient;
+    private ChildEventListener mChildEventListener;
+    private DatabaseReference mUsers;
+    Marker marker;
+    public FusedLocationProviderClient fusedLocationProviderClient;
     private LocationManager locMgr;
     float zoom;
     String bestProv;
@@ -50,6 +73,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setMyLocationEnabled(true);  //顯示定位圖示
         }
         Toast.makeText(this , x + "\n" + y , Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+
+        ActivityMapsBinding binding = ActivityMapsBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+        ChildEventListener mChildEventListener;
+        mUsers= FirebaseDatabase.getInstance().getReference("coordinates");
+        mUsers.push().setValue(marker);
+        Button nextPageBtn = (Button)findViewById(R.id.button);  //跳轉頁面
+        nextPageBtn.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                Intent intent = new Intent();
+                intent.setClass(MapsActivity.this , search.class);  //從主畫面跳到搜尋畫面
+                startActivity(intent);
+            }
+        }
+        );
     }
 
     @Override
@@ -111,6 +163,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap)
     {
         mMap = googleMap;
+        googleMap.setOnMarkerClickListener(this);
+
+        //setting the size of marker in map by using Bitmap Class
+        int height = 80;
+        int width = 80;
+
+        BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.scooter);
+        Bitmap b=bitmapdraw.getBitmap();
+        final Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+        mUsers.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot s : dataSnapshot.getChildren()){
+                    UserInformation user = s.getValue(UserInformation.class);
+                    LatLng location=new LatLng(Double.parseDouble(user.latitude),Double.parseDouble(user.longitude));
+                    mMap.addMarker(new MarkerOptions().position(location).title(user.name)).setIcon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         LatLng taichung = new LatLng(24.163434771541002 , 120.67463672003178);  //設定台中座標
         zoom = 17;
@@ -170,28 +246,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
+    public void onConnected(@Nullable Bundle bundle) {
 
-        binding = ActivityMapsBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+    }
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+    @Override
+    public void onConnectionSuspended(int i) {
 
-        Button nextPageBtn = (Button)findViewById(R.id.button);  //跳轉頁面
-        nextPageBtn.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                Intent intent = new Intent();
-                intent.setClass(MapsActivity.this , search.class);  //從主畫面跳到搜尋畫面
-                startActivity(intent);
-            }
-        }
-        );
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public boolean onMarkerClick(@NonNull Marker marker) {
+        return false;
     }
 }
