@@ -1,6 +1,22 @@
 <resources>
+
     <string name="app_name">googlemap</string>
     <string name="title_activity_maps">MapsActivity</string>
     <string name="todo">TODO</string>
     <string name="button">Button</string>
+
+    <string-array name="venue">
+        <item>綜合體育場</item>
+        <item>運動公園</item>
+        <item>游泳池</item>
+        <item>槌球</item>
+        <item>棒壘球</item>
+        <item>籃球</item>
+        <item>網球</item>
+        <item>溜冰</item>
+        <item>曲棍球</item>
+        <item>足球</item>
+        <item>其他(射箭、預定地、自由車、田徑、桌球)</item>
+    </string-array>
+
 </resources>

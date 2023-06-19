@@ -10,7 +10,11 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
@@ -26,22 +30,17 @@ import tw.edu.pu.s1091802.googlemap.databinding.ActivityMapsBinding;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback , LocationListener
 {
-
-    public static final int ROUND = 10;
     private GoogleMap mMap;
     private LocationManager locMgr;
     float zoom;
     String bestProv;
+    private TextView txtResult;
+    private Spinner spnPrefer;
 
     @Override
     public void onLocationChanged(Location location)
     {
-        //取得地圖座標值 : 緯度 , 經度
-        String x = "緯=" + Double.toString(location.getLatitude());
-        String y = "經=" + Double.toString(location.getLongitude());
-
         LatLng Point = new LatLng(location.getLatitude(), location.getLongitude());
-        zoom = 17;
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(Point, zoom));
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
@@ -49,7 +48,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setMyLocationEnabled(true);  //顯示定位圖示
         }
 
-        Toast.makeText(this, x + "\n" + y, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -59,6 +57,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         ActivityMapsBinding binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        txtResult = (TextView) findViewById(R.id.txtResult);
+        spnPrefer = (Spinner) findViewById(R.id.spnPrefer);
+
+        // 建立 ArrayAdapter
+        ArrayAdapter<CharSequence> adaptervenue = ArrayAdapter.createFromResource(this , R.array.venue , android.R.layout.simple_spinner_item);
+        // 設定 Spinner 顯示格式
+        adaptervenue.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // 設定 Spinner 的資料來源
+        spnPrefer.setAdapter(adaptervenue);
+        // 設定 spnPrefer 元件 ItemSelected 事件的 listener 為 spnPreferListener
+        spnPrefer.setOnItemSelectedListener(spnPreferListener);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -76,6 +86,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         );
     }
+
+    // 定義 onItemSelected 方法
+    private Spinner.OnItemSelectedListener spnPreferListener = new Spinner.OnItemSelectedListener()
+    {
+        @Override
+        public void onItemSelected(AdapterView<?> parent , View v , int position , long id)
+        {
+            String sel = parent.getSelectedItem().toString();
+            txtResult.setText(sel);
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+    };
 
     @Override
     protected void onResume()
@@ -150,7 +176,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void requestPermission()
     {
-        if (Build.VERSION.SDK_INT >= 23)  //androis 6.0 以上
+        if (Build.VERSION.SDK_INT >= 23)  //android 6.0 以上
         {
             //判斷是否已取得授權
             int hasPermission = ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION);
