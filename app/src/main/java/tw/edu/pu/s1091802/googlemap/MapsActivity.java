@@ -10,11 +10,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
@@ -34,8 +30,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationManager locMgr;
     float zoom;
     String bestProv;
-    private TextView txtResult;
-    private Spinner spnPrefer;
 
     @Override
     public void onLocationChanged(Location location)
@@ -58,18 +52,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         ActivityMapsBinding binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        txtResult = (TextView) findViewById(R.id.txtResult);
-        spnPrefer = (Spinner) findViewById(R.id.spnPrefer);
-
-        // 建立 ArrayAdapter
-        ArrayAdapter<CharSequence> adaptervenue = ArrayAdapter.createFromResource(this , R.array.venue , android.R.layout.simple_spinner_item);
-        // 設定 Spinner 顯示格式
-        adaptervenue.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // 設定 Spinner 的資料來源
-        spnPrefer.setAdapter(adaptervenue);
-        // 設定 spnPrefer 元件 ItemSelected 事件的 listener 為 spnPreferListener
-        spnPrefer.setOnItemSelectedListener(spnPreferListener);
-
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -86,22 +68,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         );
     }
-
-    // 定義 onItemSelected 方法
-    private Spinner.OnItemSelectedListener spnPreferListener = new Spinner.OnItemSelectedListener()
-    {
-        @Override
-        public void onItemSelected(AdapterView<?> parent , View v , int position , long id)
-        {
-            String sel = parent.getSelectedItem().toString();
-            txtResult.setText(sel);
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-
-        }
-    };
 
     @Override
     protected void onResume()
